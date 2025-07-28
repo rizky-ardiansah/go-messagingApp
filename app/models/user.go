@@ -7,12 +7,12 @@ import (
 )
 
 type User struct {
-	ID        uint `gorm:"primarykey"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Username  string `json:"username" gorm:"unique;type:varchar(20)" validate:"required,min=1,max=32"`
-	Password  string `json:"password" gorm:"type:varchar(255);" validate:"required,min=6"`
-	FullName  string `json:"full_name" gorm:"type:varchar(100);" validate:"required,min=6"`
+	Id        uint      `gorm:"primarykey"`
+	CreatedAt time.Time `json:"-"`
+	UpdatedAt time.Time `json:"-"`
+	Username  string    `json:"username" gorm:"unique;type:varchar(20)" validate:"required,min=1,max=32"`
+	Password  string    `json:"password" gorm:"type:varchar(255);" validate:"required,min=6"`
+	FullName  string    `json:"full_name" gorm:"type:varchar(100);" validate:"required,min=6"`
 }
 
 func (l User) Validate() error {

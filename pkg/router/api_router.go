@@ -3,7 +3,7 @@ package router
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/kooroshh/fiber-boostrap/app/controllers"
+	"github.com/rizky-ardiansah/go-messagingApp/app/controllers"
 )
 
 type ApiRouter struct{}

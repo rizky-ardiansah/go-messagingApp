@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/kooroshh/fiber-boostrap/app/models"
-	"github.com/kooroshh/fiber-boostrap/pkg/database"
+	"github.com/rizky-ardiansah/go-messagingApp/app/models"
+	"github.com/rizky-ardiansah/go-messagingApp/pkg/database"
 )
 
 func InsertNewUser(ctx context.Context, user *models.User) error {

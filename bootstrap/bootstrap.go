@@ -6,9 +6,9 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/template/html/v2"
-	"github.com/kooroshh/fiber-boostrap/pkg/database"
-	"github.com/kooroshh/fiber-boostrap/pkg/env"
-	"github.com/kooroshh/fiber-boostrap/pkg/router"
+	"github.com/rizky-ardiansah/go-messagingApp/pkg/database"
+	"github.com/rizky-ardiansah/go-messagingApp/pkg/env"
+	"github.com/rizky-ardiansah/go-messagingApp/pkg/router"
 )
 
 func NewApplication() *fiber.App {

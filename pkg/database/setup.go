@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/kooroshh/fiber-boostrap/app/models"
-	"github.com/kooroshh/fiber-boostrap/pkg/env"
+	"github.com/rizky-ardiansah/go-messagingApp/app/models"
+	"github.com/rizky-ardiansah/go-messagingApp/pkg/env"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
