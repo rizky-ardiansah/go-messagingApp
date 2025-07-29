@@ -121,3 +121,14 @@ func Login(ctx *fiber.Ctx) error {
 
 	return response.SendSuccessResponse(ctx, resp)
 }
+
+func Logout(ctx *fiber.Ctx) error {
+	token := ctx.Get("Authorization")
+	err := repository.DeleteUserSessionByToken(ctx.Context(), token)
+	if err != nil {
+		errorResponse := fmt.Errorf("failed to delete user session: %v", err)
+		fmt.Println(errorResponse)
+		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, "terjadi kesalahan pada sistem", nil)
+	}
+	return response.SendSuccessResponse(ctx, nil)
+}
