@@ -87,13 +87,13 @@ func Login(ctx *fiber.Ctx) error {
 		return response.SendFailureResponse(ctx, fiber.StatusNotFound, "username/password salah", nil)
 	}
 
-	token, err := jwt_token.GenerateToken(ctx.Context(), user.Username, user.FullName, "token")
+	token, err := jwt_token.GenerateToken(ctx.Context(), user.Username, user.FullName, "token", now)
 	if err != nil {
 		errorResponse := fmt.Errorf("failed to generate token: %v", err)
 		fmt.Println(errorResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, "terjadi kesalahan pada sistem", nil)
 	}
-	refreshToken, err := jwt_token.GenerateToken(ctx.Context(), user.Username, user.FullName, "refresh_token")
+	refreshToken, err := jwt_token.GenerateToken(ctx.Context(), user.Username, user.FullName, "refresh_token", now)
 	if err != nil {
 		errorResponse := fmt.Errorf("failed to generate token: %v", err)
 		fmt.Println(errorResponse)
@@ -131,4 +131,28 @@ func Logout(ctx *fiber.Ctx) error {
 		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, "terjadi kesalahan pada sistem", nil)
 	}
 	return response.SendSuccessResponse(ctx, nil)
+}
+
+func RefreshToken(ctx *fiber.Ctx) error {
+	now := time.Now()
+	refreshToken := ctx.Get("Authorization")
+	username := ctx.Locals("username").(string)
+	fullName := ctx.Locals("full_name").(string)
+
+	token, err := jwt_token.GenerateToken(ctx.Context(), username, fullName, "token", now)
+	if err != nil {
+		errorResponse := fmt.Errorf("failed to generate token: %v", err)
+		fmt.Println(errorResponse)
+		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, "terjadi kesalahan pada sistem", nil)
+	}
+
+	err = repository.UpdateUserSessionToken(ctx.Context(), token, now.Add(jwt_token.MapTypeToken["token"]), refreshToken)
+	if err != nil {
+		errorResponse := fmt.Errorf("failed to update token: %v", err)
+		fmt.Println(errorResponse)
+		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, "terjadi kesalahan pada sistem", nil)
+	}
+	return response.SendSuccessResponse(ctx, fiber.Map{
+		"token": token,
+	})
 }
