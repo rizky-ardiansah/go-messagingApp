@@ -1,11 +1,14 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"log"
 
 	"github.com/rizky-ardiansah/go-messagingApp/app/models"
 	"github.com/rizky-ardiansah/go-messagingApp/pkg/env"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -25,4 +28,17 @@ func SetupDatabase() {
 	}
 
 	DB.Logger = logger.Default.LogMode(logger.Info)
+}
+
+func SetupMongoDB() {
+	uri := env.GetEnv("MONGODB_URI", "")
+	client, err := mongo.Connect(context.TODO(), options.Client().
+		ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
+	coll := client.Database("mesagge").Collection("message_history")
+	MongoDB = coll
+
+	fmt.Println("Succesfully connected to mongodb")
 }
