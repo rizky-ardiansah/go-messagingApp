@@ -1,0 +1,7 @@
+2025/08/03 20:13:39 Succesfully connected to mongodb
+2025/08/03 20:15:33 failed to create user: Error 1062 (23000): Duplicate entry 'mpots4' for key 'users.uni_users_username'
+2025/08/03 20:31:51 Succesfully connected to mongodb
+2025/08/03 20:38:05 Succesfully connected to mongodb
+2025/08/03 20:38:41 authorization empty
+2025/08/03 20:38:42 authorization empty
+2025/08/03 20:38:43 authorization empty
