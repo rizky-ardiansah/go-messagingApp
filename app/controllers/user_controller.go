@@ -10,10 +10,14 @@ import (
 	"github.com/rizky-ardiansah/go-messagingApp/app/repository"
 	"github.com/rizky-ardiansah/go-messagingApp/pkg/jwt_token"
 	"github.com/rizky-ardiansah/go-messagingApp/pkg/response"
+	"go.elastic.co/apm"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func Register(ctx *fiber.Ctx) error {
+	span, spanCtx := apm.StartSpan(ctx.Context(), "Register", "controller")
+	defer span.End()
+
 	user := new(models.User)
 
 	err := ctx.BodyParser(user)
@@ -39,7 +43,7 @@ func Register(ctx *fiber.Ctx) error {
 
 	user.Password = string(hashPassword)
 
-	err = repository.InsertNewUser(ctx.Context(), user)
+	err = repository.InsertNewUser(spanCtx, user)
 	if err != nil {
 		errorResponse := fmt.Errorf("failed to create user: %v", err)
 		log.Println(errorResponse)
@@ -53,6 +57,8 @@ func Register(ctx *fiber.Ctx) error {
 }
 
 func Login(ctx *fiber.Ctx) error {
+	span, spanCtx := apm.StartSpan(ctx.Context(), "Login", "controller")
+	defer span.End()
 	// parsing req dan validasi req
 	var (
 		loginReq = new(models.LoginRequest)
@@ -74,7 +80,7 @@ func Login(ctx *fiber.Ctx) error {
 		return response.SendFailureResponse(ctx, fiber.StatusBadRequest, errorResponse.Error(), nil)
 	}
 
-	user, err := repository.GetUserByUsername(ctx.Context(), loginReq.Username)
+	user, err := repository.GetUserByUsername(spanCtx, loginReq.Username)
 	if err != nil {
 		errorResponse := fmt.Errorf("failed to get username: %v", err)
 		log.Println(errorResponse)
@@ -88,13 +94,13 @@ func Login(ctx *fiber.Ctx) error {
 		return response.SendFailureResponse(ctx, fiber.StatusNotFound, "username/password salah", nil)
 	}
 
-	token, err := jwt_token.GenerateToken(ctx.Context(), user.Username, user.FullName, "token", now)
+	token, err := jwt_token.GenerateToken(spanCtx, user.Username, user.FullName, "token", now)
 	if err != nil {
 		errorResponse := fmt.Errorf("failed to generate token: %v", err)
 		log.Println(errorResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, "terjadi kesalahan pada sistem", nil)
 	}
-	refreshToken, err := jwt_token.GenerateToken(ctx.Context(), user.Username, user.FullName, "refresh_token", now)
+	refreshToken, err := jwt_token.GenerateToken(spanCtx, user.Username, user.FullName, "refresh_token", now)
 	if err != nil {
 		errorResponse := fmt.Errorf("failed to generate token: %v", err)
 		log.Println(errorResponse)
@@ -108,7 +114,7 @@ func Login(ctx *fiber.Ctx) error {
 		TokenExpired:        now.Add(jwt_token.MapTypeToken["token"]),
 		RefreshTokenExpired: now.Add(jwt_token.MapTypeToken["refresh_token"]),
 	}
-	err = repository.InsertNewUserSession(ctx.Context(), userSession)
+	err = repository.InsertNewUserSession(spanCtx, userSession)
 	if err != nil {
 		errorResponse := fmt.Errorf("failed insert user session: %v", err)
 		log.Println(errorResponse)
@@ -124,8 +130,10 @@ func Login(ctx *fiber.Ctx) error {
 }
 
 func Logout(ctx *fiber.Ctx) error {
+	span, spanCtx := apm.StartSpan(ctx.Context(), "Logout", "controller")
+	defer span.End()
 	token := ctx.Get("Authorization")
-	err := repository.DeleteUserSessionByToken(ctx.Context(), token)
+	err := repository.DeleteUserSessionByToken(spanCtx, token)
 	if err != nil {
 		errorResponse := fmt.Errorf("failed to delete user session: %v", err)
 		log.Println(errorResponse)
@@ -135,19 +143,21 @@ func Logout(ctx *fiber.Ctx) error {
 }
 
 func RefreshToken(ctx *fiber.Ctx) error {
+	span, spanCtx := apm.StartSpan(ctx.Context(), "RefreshToken", "controller")
+	defer span.End()
 	now := time.Now()
 	refreshToken := ctx.Get("Authorization")
 	username := ctx.Locals("username").(string)
 	fullName := ctx.Locals("full_name").(string)
 
-	token, err := jwt_token.GenerateToken(ctx.Context(), username, fullName, "token", now)
+	token, err := jwt_token.GenerateToken(spanCtx, username, fullName, "token", now)
 	if err != nil {
 		errorResponse := fmt.Errorf("failed to generate token: %v", err)
 		log.Println(errorResponse)
 		return response.SendFailureResponse(ctx, fiber.StatusInternalServerError, "terjadi kesalahan pada sistem", nil)
 	}
 
-	err = repository.UpdateUserSessionToken(ctx.Context(), token, now.Add(jwt_token.MapTypeToken["token"]), refreshToken)
+	err = repository.UpdateUserSessionToken(spanCtx, token, now.Add(jwt_token.MapTypeToken["token"]), refreshToken)
 	if err != nil {
 		errorResponse := fmt.Errorf("failed to update token: %v", err)
 		log.Println(errorResponse)

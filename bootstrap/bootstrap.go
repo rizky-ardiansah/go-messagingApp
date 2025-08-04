@@ -14,6 +14,7 @@ import (
 	"github.com/rizky-ardiansah/go-messagingApp/pkg/database"
 	"github.com/rizky-ardiansah/go-messagingApp/pkg/env"
 	"github.com/rizky-ardiansah/go-messagingApp/pkg/router"
+	"go.elastic.co/apm"
 )
 
 func NewApplication() *fiber.App {
@@ -23,6 +24,7 @@ func NewApplication() *fiber.App {
 	database.SetupDatabase()
 	database.SetupMongoDB()
 
+	apm.DefaultTracer.Service.Name = "simple-messaging-app"
 	engine := html.New("./views", ".html")
 	app := fiber.New(fiber.Config{Views: engine})
 	app.Use(recover.New())

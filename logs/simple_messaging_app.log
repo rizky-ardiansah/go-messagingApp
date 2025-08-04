@@ -5,3 +5,17 @@
 2025/08/03 20:38:41 authorization empty
 2025/08/03 20:38:42 authorization empty
 2025/08/03 20:38:43 authorization empty
+2025/08/04 11:09:37 Succesfully connected to mongodb
+2025/08/04 11:10:13 failed to get user session on DB:  record not found
+2025/08/04 11:10:34 failed to create user: Error 1062 (23000): Duplicate entry 'mpots5' for key 'users.uni_users_username'
+2025/08/04 11:24:05 Succesfully connected to mongodb
+2025/08/04 11:43:35 Succesfully connected to mongodb
+2025/08/04 11:55:39 Succesfully connected to mongodb
+2025/08/04 12:10:19 Succesfully connected to mongodb
+2025/08/04 12:13:19 error payload:  websocket: close 1001 (going away)
+2025/08/04 12:13:25 error payload:  websocket: close 1001 (going away)
+2025/08/04 12:14:02 Succesfully connected to mongodb
+2025/08/04 12:14:23 error payload:  websocket: close 1001 (going away)
+2025/08/04 12:14:47 error payload:  websocket: close 1001 (going away)
+2025/08/04 12:17:14 Succesfully connected to mongodb
+2025/08/04 12:20:45 error payload:  websocket: close 1006 (abnormal closure): unexpected EOF

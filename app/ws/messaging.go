@@ -11,6 +11,7 @@ import (
 	"github.com/rizky-ardiansah/go-messagingApp/app/models"
 	"github.com/rizky-ardiansah/go-messagingApp/app/repository"
 	"github.com/rizky-ardiansah/go-messagingApp/pkg/env"
+	"go.elastic.co/apm"
 )
 
 func ServerWSMessaging(app *fiber.App) {
@@ -31,11 +32,16 @@ func ServerWSMessaging(app *fiber.App) {
 				log.Println("error payload: ", err)
 				break
 			}
+
+			tx := apm.DefaultTracer.StartTransaction("Send Message", "ws")
+			ctx := apm.ContextWithTransaction(context.Background(), tx)
+
 			msg.Date = time.Now()
-			err := repository.InsertNewMessage(context.Background(), msg)
+			err := repository.InsertNewMessage(ctx, msg)
 			if err != nil {
 				log.Println(err)
 			}
+			tx.End()
 			broadcast <- msg
 		}
 	}))
