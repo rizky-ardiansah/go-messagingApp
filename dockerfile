@@ -1,4 +1,5 @@
-FROM golang:1.24.0-alpine
+# Build stage
+FROM golang:1.24.0-alpine AS builder
 
 WORKDIR /app
 
@@ -11,11 +12,20 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -o simple-messaging-app
+# Build the application with optimizations
+RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-w -s' -o simple-messaging-app
 
-# Set executable permissions
-RUN chmod +x simple-messaging-app
+# Final stage - minimal image
+FROM alpine:latest
+
+# Install ca-certificates for HTTPS connections
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+# Copy the binary from builder stage
+COPY --from=builder /app/simple-messaging-app .
+COPY --from=builder /app/.env .
 
 # Expose ports
 EXPOSE 4000
