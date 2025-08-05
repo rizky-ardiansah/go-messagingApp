@@ -76,7 +76,8 @@
         background-color: #45a049;
       }
 
-      #login-form {
+      #login-form,
+      #register-form {
         padding: 20px;
         max-width: 400px;
         margin: 50px auto;
@@ -86,26 +87,95 @@
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
 
+      #register-form {
+        display: none;
+      }
+
       input {
         width: 100%;
         padding: 10px;
         margin: 10px 0;
         border: 1px solid #ccc;
         border-radius: 4px;
+        transition: border-color 0.3s;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #4caf50;
+      }
+
+      input.error {
+        border-color: #f44336;
+        background-color: #ffebee;
+      }
+
+      .validation-message {
+        color: #f44336;
+        font-size: 14px;
+        margin-top: 5px;
+        display: none;
+      }
+
+      .form-switch {
+        text-align: center;
+        margin-top: 15px;
+      }
+
+      .form-switch a {
+        color: #4caf50;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .form-switch a:hover {
+        text-decoration: underline;
+      }
+
+      .button-secondary {
+        background-color: #2196f3;
+      }
+
+      .button-secondary:hover {
+        background-color: #1976d2;
       }
     </style>
   </head>
   <body>
+    <!-- Login Form -->
     <div id="login-form">
       <h2 id="login-status">Please log in</h2>
-      <p>u: admin p: admin123</p>
+      <p>u: admin p: admin123 for demo</p>
       <input type="text" id="username" placeholder="Username" />
       <input type="password" id="password" placeholder="Password" />
       <button onclick="login()">Login</button>
+      <div class="form-switch">
+        <p>
+          Belum punya akun?
+          <a onclick="showRegisterForm()">Daftar disini</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-form">
+      <h2 id="register-status">Buat Akun</h2>
+      <input type="text" id="register-username" placeholder="Username" />
+      <input type="text" id="register-fullname" placeholder="Full Name" />
+      <input type="password" id="register-password" placeholder="Password" />
+      <input
+        type="password"
+        id="register-confirm-password"
+        placeholder="Confirm Password"
+      />
+      <button onclick="register()" class="button-secondary">Daftar</button>
+      <div class="form-switch">
+        <p>Sudah punya akun? <a onclick="showLoginForm()">Login disini</a></p>
+      </div>
     </div>
 
     <div id="dashboard">
-      <h2>Welcome to the simple messaging app!</h2>
+      <h2>Selamat datang di simple messaging app!</h2>
       <button onclick="logout()">Logout</button>
 
       <!-- Chat Box (Full Size) -->
@@ -152,12 +222,147 @@
           showDashboard();
           setupWebSocket();
         }
+
+        // Add Enter key event listeners
+        addEnterKeyListeners();
+
+        // Add real-time validation listeners
+        addValidationListeners();
       });
+
+      // Add real-time validation
+      function addValidationListeners() {
+        // Username validation on input
+        document
+          .getElementById("register-username")
+          .addEventListener("input", function () {
+            const username = this.value;
+            this.classList.remove("error");
+
+            if (username.length > 32) {
+              this.classList.add("error");
+            }
+          });
+
+        // Full name validation on input
+        document
+          .getElementById("register-fullname")
+          .addEventListener("input", function () {
+            const fullname = this.value;
+            this.classList.remove("error");
+
+            if (fullname.length > 0 && fullname.length < 6) {
+              this.classList.add("error");
+            }
+          });
+
+        // Password validation on input
+        document
+          .getElementById("register-password")
+          .addEventListener("input", function () {
+            const password = this.value;
+            this.classList.remove("error");
+
+            if (password.length > 0 && password.length < 6) {
+              this.classList.add("error");
+            }
+
+            // Check confirm password if it has value
+            const confirmPassword = document.getElementById(
+              "register-confirm-password"
+            ).value;
+            const confirmField = document.getElementById(
+              "register-confirm-password"
+            );
+
+            if (confirmPassword.length > 0) {
+              confirmField.classList.remove("error");
+              if (password !== confirmPassword) {
+                confirmField.classList.add("error");
+              }
+            }
+          });
+
+        // Confirm password validation on input
+        document
+          .getElementById("register-confirm-password")
+          .addEventListener("input", function () {
+            const confirmPassword = this.value;
+            const password = document.getElementById("register-password").value;
+
+            this.classList.remove("error");
+
+            if (confirmPassword.length > 0 && password !== confirmPassword) {
+              this.classList.add("error");
+            }
+          });
+      }
+
+      // Add Enter key functionality
+      function addEnterKeyListeners() {
+        // Login form Enter key
+        document
+          .getElementById("password")
+          .addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+              login();
+            }
+          });
+
+        // Register form Enter key
+        document
+          .getElementById("register-confirm-password")
+          .addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+              register();
+            }
+          });
+
+        // Message input Enter key
+        document
+          .getElementById("message-input")
+          .addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+              sendMessage();
+            }
+          });
+      }
 
       // Login function
       function login() {
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
+
+        // Clear previous error styling
+        document.getElementById("username").classList.remove("error");
+        document.getElementById("password").classList.remove("error");
+
+        let isValid = true;
+        let errorMessage = "";
+
+        // Username validation
+        if (!username) {
+          document.getElementById("username").classList.add("error");
+          errorMessage = "Username is required!";
+          isValid = false;
+        } else if (username.length > 32) {
+          document.getElementById("username").classList.add("error");
+          errorMessage = "Username is too long!";
+          isValid = false;
+        }
+
+        // Password validation
+        if (!password) {
+          document.getElementById("password").classList.add("error");
+          errorMessage = errorMessage || "Password is required!";
+          isValid = false;
+        }
+
+        if (!isValid) {
+          document.getElementById("login-status").innerText = errorMessage;
+          document.getElementById("login-status").style.color = "#f44336";
+          return;
+        }
 
         fetch("/user/v1/login", {
           method: "POST",
@@ -175,17 +380,199 @@
               sessionStorage.setItem("fullname", data.data.full_name);
               document.getElementById("login-status").innerText =
                 "Login successful!";
+              document.getElementById("login-status").style.color = "#4caf50";
               showDashboard();
               setupWebSocket();
             } else {
               document.getElementById("login-status").innerText =
-                "Login failed!";
+                "Username or password is incorrect!";
+              document.getElementById("login-status").style.color = "#f44336";
+              document.getElementById("username").classList.add("error");
+              document.getElementById("password").classList.add("error");
             }
           })
           .catch((err) => {
             document.getElementById("login-status").innerText =
               "Error during login";
+            document.getElementById("login-status").style.color = "#f44336";
           });
+      }
+
+      // Register function
+      function register() {
+        const username = document.getElementById("register-username").value;
+        const fullname = document.getElementById("register-fullname").value;
+        const password = document.getElementById("register-password").value;
+        const confirmPassword = document.getElementById(
+          "register-confirm-password"
+        ).value;
+
+        // Clear previous error styling
+        clearErrorStyling();
+
+        // Validation based on backend model constraints
+        let isValid = true;
+        let errorMessage = "";
+
+        // Username validation: required, min=1, max=32
+        if (!username) {
+          markFieldError("register-username");
+          errorMessage = "Username is required!";
+          isValid = false;
+        } else if (username.length < 1 || username.length > 32) {
+          markFieldError("register-username");
+          errorMessage = "Username must be between 1 and 32 characters!";
+          isValid = false;
+        }
+
+        // Full Name validation: required, min=6
+        if (!fullname) {
+          markFieldError("register-fullname");
+          errorMessage = errorMessage || "Full Name is required!";
+          isValid = false;
+        } else if (fullname.length < 6) {
+          markFieldError("register-fullname");
+          errorMessage =
+            errorMessage || "Full Name must be at least 6 characters!";
+          isValid = false;
+        }
+
+        // Password validation: required, min=6
+        if (!password) {
+          markFieldError("register-password");
+          errorMessage = errorMessage || "Password is required!";
+          isValid = false;
+        } else if (password.length < 6) {
+          markFieldError("register-password");
+          errorMessage =
+            errorMessage || "Password must be at least 6 characters!";
+          isValid = false;
+        }
+
+        // Confirm Password validation
+        if (!confirmPassword) {
+          markFieldError("register-confirm-password");
+          errorMessage = errorMessage || "Please confirm your password!";
+          isValid = false;
+        } else if (password !== confirmPassword) {
+          markFieldError("register-password");
+          markFieldError("register-confirm-password");
+          errorMessage = errorMessage || "Passwords do not match!";
+          isValid = false;
+        }
+
+        // Additional password strength validation (optional)
+        if (password && password.length >= 6) {
+          // Simple validation - at least one letter and one number
+          if (!/(?=.*[a-zA-Z])/.test(password)) {
+            markFieldError("register-password");
+            errorMessage =
+              errorMessage || "Password must contain at least one letter!";
+            isValid = false;
+          }
+          if (!/(?=.*\d)/.test(password)) {
+            markFieldError("register-password");
+            errorMessage =
+              errorMessage || "Password must contain at least one number!";
+            isValid = false;
+          }
+        }
+
+        if (!isValid) {
+          document.getElementById("register-status").innerText = errorMessage;
+          document.getElementById("register-status").style.color = "#f44336";
+          return;
+        }
+
+        fetch("/user/v1/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username,
+            full_name: fullname,
+            password,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.message === "success") {
+              document.getElementById("register-status").innerText =
+                "Registration successful! Please login.";
+              document.getElementById("register-status").style.color =
+                "#4caf50";
+              setTimeout(() => {
+                showLoginForm();
+                document.getElementById("username").value = username;
+              }, 2000);
+            } else {
+              document.getElementById("register-status").innerText =
+                data.message || "Registration failed!";
+              document.getElementById("register-status").style.color =
+                "#f44336";
+            }
+          })
+          .catch((err) => {
+            document.getElementById("register-status").innerText =
+              "Error during registration";
+            document.getElementById("register-status").style.color = "#f44336";
+          });
+      }
+
+      // Helper functions for error handling
+      function markFieldError(fieldId) {
+        const field = document.getElementById(fieldId);
+        field.classList.add("error");
+      }
+
+      function clearErrorStyling() {
+        const fields = [
+          "register-username",
+          "register-fullname",
+          "register-password",
+          "register-confirm-password",
+        ];
+        fields.forEach((fieldId) => {
+          const field = document.getElementById(fieldId);
+          field.classList.remove("error");
+        });
+      }
+
+      // Form switching functions
+      function showRegisterForm() {
+        document.getElementById("login-form").style.display = "none";
+        document.getElementById("register-form").style.display = "block";
+        clearForms();
+      }
+
+      function showLoginForm() {
+        document.getElementById("register-form").style.display = "none";
+        document.getElementById("login-form").style.display = "block";
+        clearForms();
+      }
+
+      function clearForms() {
+        // Clear login form
+        const usernameField = document.getElementById("username");
+        const passwordField = document.getElementById("password");
+
+        usernameField.value = "";
+        passwordField.value = "";
+        usernameField.classList.remove("error");
+        passwordField.classList.remove("error");
+
+        document.getElementById("login-status").innerText = "Please log in";
+        document.getElementById("login-status").style.color = "";
+
+        // Clear register form
+        clearErrorStyling();
+        document.getElementById("register-username").value = "";
+        document.getElementById("register-fullname").value = "";
+        document.getElementById("register-password").value = "";
+        document.getElementById("register-confirm-password").value = "";
+        document.getElementById("register-status").innerText = "Buat Akun";
+        document.getElementById("register-status").style.color = "";
       }
 
       // Logout function

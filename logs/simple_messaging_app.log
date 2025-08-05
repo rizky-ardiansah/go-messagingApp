@@ -36,3 +36,10 @@
 2025/08/05 12:35:32 Succesfully connected to mongodb
 2025/08/05 12:36:17 failed to validate request: Key: 'User.Password' Error:Field validation for 'Password' failed on the 'min' tag
 Key: 'User.FullName' Error:Field validation for 'FullName' failed on the 'min' tag
+2025/08/05 20:50:54 Succesfully connected to mongodb
+2025/08/05 20:52:07 failed to validate request: Key: 'User.FullName' Error:Field validation for 'FullName' failed on the 'min' tag
+2025/08/05 20:52:51 failed to check password: crypto/bcrypt: hashedPassword is not the hash of the given password
+2025/08/05 21:20:55 Succesfully connected to mongodb
+2025/08/05 21:21:57 failed to check password: crypto/bcrypt: hashedPassword is not the hash of the given password
+2025/08/05 21:22:54 failed to check password: crypto/bcrypt: hashedPassword is not the hash of the given password
+2025/08/05 21:26:18 Succesfully connected to mongodb
