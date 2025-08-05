@@ -12,44 +12,21 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
-
-      - name: Free up disk space
+      - name: create .env file
         run: |
-          echo "Before cleanup:"
-          df -h
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/local/share/boost
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-          sudo rm -rf /usr/local/.ghcup
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/local/lib/android
-          sudo apt-get remove -y '^dotnet-.*'
-          sudo apt-get remove -y '^llvm-.*'
-          sudo apt-get remove -y 'php.*'
-          sudo apt-get remove -y azure-cli google-cloud-sdk hhvm google-chrome-stable firefox powershell mono-devel
-          sudo apt-get autoremove -y
-          sudo apt-get autoclean
-          sudo docker system prune -af --volumes
-          echo "After cleanup:"
-          df -h
-
-      - name: Create complete .env file
-        run: |
-          echo "PORT=${{ secrets.PORT }}" >> .env
-          echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "APP_NAME=\"${{ secrets.APP_NAME }}\"" >> .env
-          echo "APP_HOST=${{ secrets.APP_HOST }}" >> .env
-          echo "APP_PORT=${{ secrets.APP_PORT }}" >> .env
-          echo "APP_PORT_SOCKET=${{ secrets.APP_PORT_SOCKET }}" >> .env
-          echo "APP_SECRET=${{ secrets.APP_SECRET }}" >> .env
-          echo "MONGODB_URI=\"${{ secrets.MONGODB_URI }}\"" >> .env
-          echo "ELASTIC_APM_SERVER_URL=\"${{ secrets.ELASTIC_APM_SERVER_URL }}\"" >> .env
-
+          echo "PORT${{secrets.PORT}}" > .env
+          echo "DB_HOST=${{secrets.DB_HOST}}" > .env
+          echo "DB_PORT=${{secrets.DB_PORT}}" >> .env
+          echo "DB_NAME=${{secrets.DB_NAME}}" >> .env
+          echo "DB_USER=${{secrets.DB_USER}}" >> .env
+          echo "DB_PASSWORD=${{secrets.DB_PASSWORD}}" >> .env
+          echo "APP_NAME=${{secrets.APP_NAME}}" >> .env
+          echo "APP_HOST=${{secrets.APP_HOST}}" >> .env
+          echo "APP_PORT=${{secrets.APP_PORT}}" >> .env
+          echo "APP_PORT_SOCKET=${{secrets.APP_PORT_SOCKET}}" >> .env
+          echo "APP_SECRET=${{secrets.APP_SECRET}}" >> .env
+          echo "MONGODB_URI=${{secrets.MONGODB_URI}}" >> .env
+          echo "ELASTIC_APM_SERVER_URL=${{secrets.ELASTIC_APM_SERVER_URL}}" >> .env
       - name: Login to docker hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Build docker image
@@ -65,4 +42,18 @@ jobs:
       - name: Delete old container
         run: docker rm -f simple-messaging-app
       - name: Running new docker container
-        run: docker run -d -p 8080:8080 -p 4000:4000 --name simple-messaging-app mpots/simple-messaging-app
+        run: |
+          docker run -d -p 8080:8080 -p 4000:4000 \
+            -e DB_HOST=${{secrets.DB_HOST}} \
+            -e DB_PORT=${{secrets.DB_PORT}} \
+            -e DB_NAME=${{secrets.DB_NAME}} \
+            -e DB_USER=${{secrets.DB_USER}} \
+            -e DB_PASSWORD=${{secrets.DB_PASSWORD}} \
+            -e APP_NAME=${{secrets.APP_NAME}} \
+            -e APP_HOST=${{secrets.APP_HOST}} \
+            -e APP_PORT=${{secrets.APP_PORT}} \
+            -e APP_PORT_SOCKET=${{secrets.APP_PORT_SOCKET}} \
+            -e APP_SECRET=${{secrets.APP_SECRET}} \
+            -e MONGODB_URI=${{secrets.MONGODB_URI}} \
+            -e ELASTIC_APM_SERVER_URL=${{secrets.ELASTIC_APM_SERVER_URL}} \
+            --name simple-messaging-app mpots/simple-messaging-app
