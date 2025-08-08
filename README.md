@@ -3,7 +3,7 @@
 Real-time messaging application built with Go, Fiber, and WebSocket for instant communication.
 
 
-- **Live Demo**: http://chat.rizkyardiansah.online/
+- **Live Demo**: https://chat.rizkyardiansah.online/
 ## 📋 Documentation
 
 - **Technical Specifications**: [View Technical Specs](https://drive.google.com/file/d/1r7C4tkL_dGUFzJ6gDcrrQnpr4_cqPWOW/view?usp=sharing)
